@@ -3,13 +3,16 @@ package project.world.mapCreator;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static java.lang.Math.floor;
+
 public class Map {
     public static final int SIZE = 1024;
+    private final int zoomIn;
 
-    PerlinNoise perlin1 = new PerlinNoise(SIZE);
-    PerlinNoise perlin2 = new PerlinNoise(SIZE);
-    PerlinNoise perlin3 = new PerlinNoise(SIZE);
-    PerlinNoise perlin4 = new PerlinNoise(SIZE);
+    private final PerlinNoise perlin1;
+    private final PerlinNoise perlin2;
+    private final PerlinNoise perlin3;
+    private final PerlinNoise perlin4;
 
     private final boolean altitudeLines;
     private final boolean gridLines;
@@ -17,8 +20,16 @@ public class Map {
     private BufferedImage mapImage;
 
     public Map(boolean altitudeLines, boolean gridLines) {
+        this(altitudeLines, gridLines, 1);
+    }
+    public Map(boolean altitudeLines, boolean gridLines, int zoomIn) {
         this.altitudeLines = altitudeLines;
         this.gridLines = gridLines;
+        this.zoomIn = zoomIn;
+        perlin1 = new PerlinNoise(SIZE/zoomIn);
+        perlin2 = new PerlinNoise(SIZE/zoomIn);
+        perlin3 = new PerlinNoise(SIZE/zoomIn);
+        perlin4 = new PerlinNoise(SIZE/zoomIn);
         generateMapImage();
     }
 
@@ -51,13 +62,14 @@ public class Map {
     public void generateMapImage() {
         int SQUARE_SIZE = SIZE/20;
         mapImage = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_RGB);
+
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
-                if((x%SQUARE_SIZE == 0 || y%SQUARE_SIZE == 0)) {
+                if((x%SQUARE_SIZE == 0 || y%SQUARE_SIZE == 0) && gridLines) {
                     mapImage.setRGB(x, y, Color.black.getRGB());
                 }
                 else {
-                    double value = getPointValue(x, y);
+                    double value = getPointValue(x / zoomIn, y / zoomIn);
                     Color color = getColor(value);
                     mapImage.setRGB(x, y, color.getRGB());
                 }

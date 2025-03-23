@@ -3,7 +3,6 @@ package project.world.mapCreator;
 import javax.swing.*;
 import java.awt.*;
 
-import static java.lang.Math.abs;
 import static project.world.mapCreator.Map.SIZE;
 
 public class MapVisualizer extends JPanel {
@@ -24,7 +23,7 @@ public class MapVisualizer extends JPanel {
         JFrame frame = new JFrame("Perlin Noise");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(SIZE, SIZE);
-        frame.add(new MapVisualizer(new Map(true, true)));
+        frame.add(this);
         frame.setVisible(true);
     }
 }
