@@ -1,13 +1,17 @@
 package project.world.mapCreator;
 
+import project.world.Vector2d;
+import project.world.creatures.BasicCreature;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-
-import static java.lang.Math.floor;
+import java.util.LinkedList;
+import java.util.Random;
 
 public class Map {
-    public static final int SIZE = 1024;
+    public static final int SIZE = 1000;
     private final int zoomIn;
+    MapVisualizer mapVisualizer = new MapVisualizer(this);
 
     private final PerlinNoise perlin1;
     private final PerlinNoise perlin2;
@@ -19,10 +23,15 @@ public class Map {
 
     private BufferedImage mapImage;
 
+    private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
+
     public Map(boolean altitudeLines, boolean gridLines) {
         this(altitudeLines, gridLines, 1);
     }
     public Map(boolean altitudeLines, boolean gridLines, int zoomIn) {
+        this(altitudeLines, gridLines, zoomIn, 0);
+    }
+    public Map(boolean altitudeLines, boolean gridLines, int zoomIn, int amountOfRandomCreatures) {
         this.altitudeLines = altitudeLines;
         this.gridLines = gridLines;
         this.zoomIn = zoomIn;
@@ -31,13 +40,14 @@ public class Map {
         perlin3 = new PerlinNoise(SIZE/zoomIn);
         perlin4 = new PerlinNoise(SIZE/zoomIn);
         generateMapImage();
+        generateRandomCreatures(amountOfRandomCreatures);
+        createMap();
     }
 
     public BufferedImage getMapImage() {
         return mapImage;
     }
-
-    private Color getColor(double value) {
+    public Color getColor(double value) {
         int scaledValue = (int) ((value + 1) * 500);
 
         if(scaledValue%10 == 0 && altitudeLines) return Color.BLACK;
@@ -50,6 +60,9 @@ public class Map {
         scaledValue -= 50;
         return new Color(255, 255-scaledValue *5/7, 0);
     }
+    public LinkedList<BasicCreature> getCreatureList() {
+        return creatureList;
+    }
 
     public double getPointValue(int x, int y) {
         double value = perlin1.noise(x * 0.001f, y * 0.001f);
@@ -57,6 +70,15 @@ public class Map {
         value += perlin3.noise(x * 0.05f, y * 0.05f) * 0.05;
         value += perlin4.noise(x * 0.1f, y * 0.1f) * 0.005;
         return value/1.755;
+    }
+    public Biome getBiome(Vector2d v) {
+        double pointValue = getPointValue(v.getX(), v.getY());
+        int scaledValue = (int) ((pointValue + 1) * 500);
+
+        if (scaledValue <= 500) return Biome.WATER;
+        if (scaledValue <= 600) return Biome.GRASSLAND;
+        if (scaledValue <= 650) return Biome.LOWER_MOUNTAINS;
+        return Biome.MOUNTAINS;
     }
 
     public void generateMapImage() {
@@ -76,9 +98,24 @@ public class Map {
             }
         }
     }
+    public void generateRandomCreatures(int amountOfRandomCreatures) {
+        Random rand = new Random();
+        for (int i = 0; i < amountOfRandomCreatures; i++) {
+            Vector2d position = new Vector2d(rand.nextInt(SIZE), rand.nextInt(SIZE));
+            BasicCreature creature = new BasicCreature(10, 10, 10, 10, position, 10);
+            spawnCreature(creature);
+        }
+    }
 
-    public void showMap() {
-        MapVisualizer mapVisualizer = new MapVisualizer(this);
+    public void spawnCreature(BasicCreature creature) {
+        creatureList.add(creature);
+    }
+
+
+    public void updateMap() {
+        mapVisualizer.updateMap();
+    }
+    public void createMap() {
         mapVisualizer.init();
     }
 

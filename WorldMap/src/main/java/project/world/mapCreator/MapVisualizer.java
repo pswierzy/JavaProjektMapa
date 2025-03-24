@@ -1,5 +1,7 @@
 package project.world.mapCreator;
 
+import project.world.creatures.BasicCreature;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,10 +15,25 @@ public class MapVisualizer extends JPanel {
         this.map = map;
     }
 
+    private void paintCreatures(Graphics g) {
+        int i=0;
+        for(BasicCreature creature: map.getCreatureList()) {
+            System.out.println("tworzenie stworzenia nr: " + i);
+            i++;
+            g.setColor(creature.getColor());
+            g.fillRect(creature.getPosition().getX(), creature.getPosition().getY(), 10,10);
+        }
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(map.getMapImage(), 0, 0, null);
+        paintCreatures(g);
+    }
+
+    protected void updateMap() {
+        repaint();
     }
 
     public void init() {
