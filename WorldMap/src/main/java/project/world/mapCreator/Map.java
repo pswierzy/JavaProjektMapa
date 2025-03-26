@@ -10,7 +10,6 @@ import java.util.Random;
 
 public class Map {
     public static final int SIZE = 1000;
-    private final int zoomIn;
     MapVisualizer mapVisualizer = new MapVisualizer(this);
 
     private final PerlinNoise perlin1;
@@ -26,19 +25,16 @@ public class Map {
     private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
 
     public Map(boolean altitudeLines, boolean gridLines) {
-        this(altitudeLines, gridLines, 1);
+        this(altitudeLines, gridLines, 0);
     }
-    public Map(boolean altitudeLines, boolean gridLines, int zoomIn) {
-        this(altitudeLines, gridLines, zoomIn, 0);
-    }
-    public Map(boolean altitudeLines, boolean gridLines, int zoomIn, int amountOfRandomCreatures) {
+
+    public Map(boolean altitudeLines, boolean gridLines, int amountOfRandomCreatures) {
         this.altitudeLines = altitudeLines;
         this.gridLines = gridLines;
-        this.zoomIn = zoomIn;
-        perlin1 = new PerlinNoise(SIZE/zoomIn);
-        perlin2 = new PerlinNoise(SIZE/zoomIn);
-        perlin3 = new PerlinNoise(SIZE/zoomIn);
-        perlin4 = new PerlinNoise(SIZE/zoomIn);
+        perlin1 = new PerlinNoise(SIZE);
+        perlin2 = new PerlinNoise(SIZE);
+        perlin3 = new PerlinNoise(SIZE);
+        perlin4 = new PerlinNoise(SIZE);
         generateMapImage();
         generateRandomCreatures(amountOfRandomCreatures);
         createMap();
@@ -91,7 +87,7 @@ public class Map {
                     mapImage.setRGB(x, y, Color.black.getRGB());
                 }
                 else {
-                    double value = getPointValue(x / zoomIn, y / zoomIn);
+                    double value = getPointValue(x, y);
                     Color color = getColor(value);
                     mapImage.setRGB(x, y, color.getRGB());
                 }

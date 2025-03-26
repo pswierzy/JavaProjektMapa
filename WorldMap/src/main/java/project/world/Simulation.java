@@ -9,7 +9,7 @@ import static java.lang.Thread.sleep;
 
 public class Simulation {
     private final Random rand = new Random();
-    private final Map map = new Map(true, true, 1, 10);
+    private final Map map = new Map(true, true, 1);
 
     private void handleMoving() {
         for(BasicCreature creature: map.getCreatureList()) {
