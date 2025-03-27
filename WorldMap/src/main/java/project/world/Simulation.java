@@ -7,12 +7,18 @@ import java.util.Random;
 
 import static java.lang.Thread.sleep;
 
-public class Simulation {
+public class Simulation implements Runnable {
     private final Random rand = new Random();
-    private final Map map = new Map(true, true, 1);
+    private final Map map;
+
+    private volatile boolean running = false;
+
+    public Simulation(Map map) {
+        this.map = map;
+    }
 
     private void handleMoving() {
-        for(BasicCreature creature: map.getCreatureList()) {
+        for (BasicCreature creature : map.getCreatureList()) {
             int x = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
             int y = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
             System.out.println(creature.getPosition());
@@ -21,16 +27,29 @@ public class Simulation {
         }
     }
 
+    @Override
     public void run() {
-        try{
-            while(true) {
+        try {
+            while (true) {
+                synchronized (this) {
+                    while (!running) {
+                        wait();
+                    }
+                }
                 handleMoving();
-                map.updateMap();
                 sleep(50);
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public synchronized void startSimulation() {
+        running = true;
+        notify();
+    }
+
+    public synchronized void stopSimulation() {
+        running = false;
     }
 }

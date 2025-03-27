@@ -1,5 +1,6 @@
 package project.world.mapCreator;
 
+import project.world.Simulation;
 import project.world.Vector2d;
 import project.world.creatures.BasicCreature;
 
@@ -9,13 +10,14 @@ import java.util.LinkedList;
 import java.util.Random;
 
 public class Map {
-    public static final int SIZE = 1000;
-    MapVisualizer mapVisualizer = new MapVisualizer(this);
+    public static final int SIZE = 800;
 
     private final PerlinNoise perlin1;
     private final PerlinNoise perlin2;
     private final PerlinNoise perlin3;
     private final PerlinNoise perlin4;
+
+    private final Simulation simulation = new Simulation(this);
 
     private final boolean altitudeLines;
     private final boolean gridLines;
@@ -24,10 +26,12 @@ public class Map {
 
     private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
 
+    public Map(){
+        this(true, true);
+    }
     public Map(boolean altitudeLines, boolean gridLines) {
         this(altitudeLines, gridLines, 0);
     }
-
     public Map(boolean altitudeLines, boolean gridLines, int amountOfRandomCreatures) {
         this.altitudeLines = altitudeLines;
         this.gridLines = gridLines;
@@ -37,12 +41,15 @@ public class Map {
         perlin4 = new PerlinNoise(SIZE);
         generateMapImage();
         generateRandomCreatures(amountOfRandomCreatures);
-        createMap();
     }
 
     public BufferedImage getMapImage() {
         return mapImage;
     }
+    public LinkedList<BasicCreature> getCreatureList() {
+        return creatureList;
+    }
+
     public Color getColor(double value) {
         int scaledValue = (int) ((value + 1) * 500);
 
@@ -56,10 +63,6 @@ public class Map {
         scaledValue -= 50;
         return new Color(255, 255-scaledValue *5/7, 0);
     }
-    public LinkedList<BasicCreature> getCreatureList() {
-        return creatureList;
-    }
-
     public double getPointValue(int x, int y) {
         double value = perlin1.noise(x * 0.001f, y * 0.001f);
         value += perlin2.noise(x * 0.01f, y * 0.01f) * 0.7;
@@ -94,6 +97,7 @@ public class Map {
             }
         }
     }
+
     public void generateRandomCreatures(int amountOfRandomCreatures) {
         Random rand = new Random();
         for (int i = 0; i < amountOfRandomCreatures; i++) {
@@ -107,12 +111,10 @@ public class Map {
         creatureList.add(creature);
     }
 
-
-    public void updateMap() {
-        mapVisualizer.updateMap();
+    public void stopSimulation() {
+        simulation.stopSimulation();
     }
-    public void createMap() {
-        mapVisualizer.init();
+    public void startSimulation() {
+        simulation.startSimulation();
     }
-
 }
