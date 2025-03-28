@@ -28,7 +28,7 @@ public class Map {
     private BufferedImage mapImage;
 
     private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
-    private LinkedList<MapListener> listenerList = new LinkedList<>();
+    private final LinkedList<MapListener> listenerList = new LinkedList<>();
 
 
     public Map(){

@@ -4,11 +4,14 @@ import project.world.listeners.MapListener;
 import project.world.mapGenerator.Map;
 import project.world.simulation.SimulationParameters;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 
 public class PanelVisualizer extends JPanel {
@@ -31,10 +34,10 @@ public class PanelVisualizer extends JPanel {
     public PanelVisualizer(Map map) {
         map.addListener(new MapListener(this));
         this.mapVisualizer = new MapVisualizer(map);
-        addListeners();
+        addMapControlListeners();
     }
 
-    private void addListeners() {
+    private void addMapControlListeners() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -106,15 +109,40 @@ public class PanelVisualizer extends JPanel {
         isSimulationRunning = !isSimulationRunning;
     }
 
+    private void downloadMap() {
+        BufferedImage image = mapVisualizer.map().getMapImage();
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Zapisz mapę jako PNG");
+        fileChooser.setSelectedFile(new File("mapa.png"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+
+            try {
+                ImageIO.write(image, "png", fileToSave);
+                JOptionPane.showMessageDialog(this, "Mapa zapisana: " + fileToSave.getAbsolutePath());
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Błąd zapisu pliku!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void addButtons(JPanel panel) {
         JButton newMapButton = new JButton("NOWA MAPA");
         simulationButton = new JButton("ZACZNIJ SYMULACJĘ");
+        JButton downloadButton = new JButton("POBIERZ MAPĘ");
 
         panel.add(newMapButton);
         newMapButton.addActionListener(e -> createNewMap());
 
         panel.add(simulationButton);
         simulationButton.addActionListener(e -> toggleSimulation());
+
+        panel.add(downloadButton);
+        downloadButton.addActionListener(e -> downloadMap());
     }
 
     @Override
