@@ -1,7 +1,6 @@
 package project.world;
 
-import project.world.creatures.BasicCreature;
-import project.world.mapCreator.Map;
+import project.world.mapGenerator.Map;
 
 import java.util.Random;
 
@@ -17,15 +16,7 @@ public class Simulation implements Runnable {
         this.map = map;
     }
 
-    private void handleMoving() {
-        for (BasicCreature creature : map.getCreatureList()) {
-            int x = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
-            int y = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
-            System.out.println(creature.getPosition());
-            creature.move(new Vector2d(x, y));
-            System.out.println(creature.getPosition());
-        }
-    }
+
 
     @Override
     public void run() {
@@ -36,7 +27,7 @@ public class Simulation implements Runnable {
                         wait();
                     }
                 }
-                handleMoving();
+                map.handleMoving();
                 sleep(50);
             }
         } catch (Exception e) {

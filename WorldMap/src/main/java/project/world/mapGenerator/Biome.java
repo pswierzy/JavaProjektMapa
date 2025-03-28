@@ -1,4 +1,4 @@
-package project.world.mapCreator;
+package project.world.mapGenerator;
 
 public enum Biome {
     WATER,

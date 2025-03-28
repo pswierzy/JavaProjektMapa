@@ -1,17 +1,19 @@
-package project.world.mapCreator;
+package project.world.mapGenerator;
 
 import project.world.Simulation;
 import project.world.Vector2d;
 import project.world.creatures.BasicCreature;
+import project.world.listeners.mapListener;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class Map {
-    public static final int SIZE = 800;
+import static project.world.visualizer.PanelVisualizer.SIZE;
 
+public class Map {
+    private final Random rand = new Random();
     private final PerlinNoise perlin1;
     private final PerlinNoise perlin2;
     private final PerlinNoise perlin3;
@@ -25,12 +27,14 @@ public class Map {
     private BufferedImage mapImage;
 
     private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
+    private LinkedList<mapListener> listenerList = new LinkedList<>();
+
 
     public Map(){
         this(true, true);
     }
     public Map(boolean altitudeLines, boolean gridLines) {
-        this(altitudeLines, gridLines, 0);
+        this(altitudeLines, gridLines, 5);
     }
     public Map(boolean altitudeLines, boolean gridLines, int amountOfRandomCreatures) {
         this.altitudeLines = altitudeLines;
@@ -41,6 +45,8 @@ public class Map {
         perlin4 = new PerlinNoise(SIZE);
         generateMapImage();
         generateRandomCreatures(amountOfRandomCreatures);
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.start();
     }
 
     public BufferedImage getMapImage() {
@@ -99,7 +105,6 @@ public class Map {
     }
 
     public void generateRandomCreatures(int amountOfRandomCreatures) {
-        Random rand = new Random();
         for (int i = 0; i < amountOfRandomCreatures; i++) {
             Vector2d position = new Vector2d(rand.nextInt(SIZE), rand.nextInt(SIZE));
             BasicCreature creature = new BasicCreature(10, 10, 10, 10, position, 10);
@@ -111,10 +116,28 @@ public class Map {
         creatureList.add(creature);
     }
 
+    public void handleMoving() {
+        for (BasicCreature creature : creatureList) {
+            int x = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
+            int y = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
+            creature.move(new Vector2d(x, y));
+        }
+        notifyListeners();
+    }
+
     public void stopSimulation() {
         simulation.stopSimulation();
     }
     public void startSimulation() {
         simulation.startSimulation();
+    }
+
+    public void addListener(mapListener listener) {
+        listenerList.add(listener);
+    }
+    public void notifyListeners() {
+        for(mapListener listener: listenerList) {
+            listener.mapChanged();
+        }
     }
 }

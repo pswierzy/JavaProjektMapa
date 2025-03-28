@@ -1,22 +1,19 @@
 package project.world.visualizer;
 
 import project.world.creatures.BasicCreature;
-import project.world.mapCreator.Map;
+import project.world.mapGenerator.Map;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class MapVisualizer {
-    private final Map map;
+import static project.world.visualizer.PanelVisualizer.SIZE;
 
-    public MapVisualizer(Map map) {
-        this.map = map;
-    }
+public record MapVisualizer(Map map) {
 
     public BufferedImage createCombinedImage() {
-        BufferedImage combinedImage = map.getMapImage();
-
+        BufferedImage combinedImage = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_RGB);
         Graphics2D gImage = combinedImage.createGraphics();
+
         gImage.drawImage(map.getMapImage(), 0, 0, null);
 
         for (BasicCreature creature : map.getCreatureList()) {

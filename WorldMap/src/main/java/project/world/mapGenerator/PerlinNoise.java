@@ -1,4 +1,4 @@
-package project.world.mapCreator;
+package project.world.mapGenerator;
 import java.util.Random;
 
 import static java.lang.Math.*;
