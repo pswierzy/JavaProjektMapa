@@ -1,7 +1,8 @@
 package project.world.visualizer;
 
-import project.world.listeners.mapListener;
+import project.world.listeners.MapListener;
 import project.world.mapGenerator.Map;
+import project.world.simulation.SimulationParameters;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,12 +19,17 @@ public class PanelVisualizer extends JPanel {
     private int offsetX = 0, offsetY = 0;
     private int lastMouseX, lastMouseY;
 
+    private JButton simulationButton;
+    private boolean isSimulationRunning = false;
+
+    private ParametersPanel paramsPanel;
+
     public PanelVisualizer() {
         this(new Map());
     }
 
     public PanelVisualizer(Map map) {
-        map.addListener(new mapListener(this));
+        map.addListener(new MapListener(this));
         this.mapVisualizer = new MapVisualizer(map);
         addListeners();
     }
@@ -64,7 +70,7 @@ public class PanelVisualizer extends JPanel {
                 zoomLevel /= scaleFactor;
             }
 
-            zoomLevel = Math.max(0.2, Math.min(5.0, zoomLevel));
+            zoomLevel = Math.max(0.5, Math.min(5.0, zoomLevel));
 
             int mouseX = e.getX();
             int mouseY = e.getY();
@@ -77,9 +83,11 @@ public class PanelVisualizer extends JPanel {
     }
 
     private void createNewMap() {
-        Map map = new Map();
-        map.addListener(new mapListener(this));
+        Map map = new Map(paramsPanel.getAltitudeLines(), paramsPanel.getGridLines(), paramsPanel.getParameters());
+        map.addListener(new MapListener(this));
         mapVisualizer = new MapVisualizer(map);
+        isSimulationRunning = false;
+        simulationButton.setText("ZACZNIJ SYMULACJĘ");
         repaint();
     }
 
@@ -87,8 +95,26 @@ public class PanelVisualizer extends JPanel {
         repaint();
     }
 
-    private void startSimulation() {
-        mapVisualizer.map().startSimulation();
+    private void toggleSimulation() {
+        if (isSimulationRunning) {
+            mapVisualizer.map().stopSimulation();
+            simulationButton.setText("ZACZNIJ SYMULACJĘ");
+        } else {
+            mapVisualizer.map().startSimulation();
+            simulationButton.setText("ZATRZYMAJ SYMULACJĘ");
+        }
+        isSimulationRunning = !isSimulationRunning;
+    }
+
+    private void addButtons(JPanel panel) {
+        JButton newMapButton = new JButton("NOWA MAPA");
+        simulationButton = new JButton("ZACZNIJ SYMULACJĘ");
+
+        panel.add(newMapButton);
+        newMapButton.addActionListener(e -> createNewMap());
+
+        panel.add(simulationButton);
+        simulationButton.addActionListener(e -> toggleSimulation());
     }
 
     @Override
@@ -104,19 +130,10 @@ public class PanelVisualizer extends JPanel {
         g2d.drawImage(combinedImage, transform, null);
     }
 
-    private void addButtons(JPanel panel) {
-        JButton button1 = new JButton("NOWA MAPA");
-        JButton button2 = new JButton("ZACZNIJ SYMULACJĘ");
-        panel.add(button1);
-        button1.addActionListener(e -> createNewMap());
-        panel.add(button2);
-        button2.addActionListener(e -> startSimulation());
-    }
-
     public void init() {
         JFrame frame = new JFrame("Perlin Noise");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(SIZE + 400, SIZE + 100);
+        frame.setSize(1200, 800);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
@@ -126,6 +143,10 @@ public class PanelVisualizer extends JPanel {
 
         // Panel boczny
         JPanel sidePanel = new JPanel();
+        paramsPanel = new ParametersPanel(800);
+        sidePanel.add(paramsPanel);
+
+
         sidePanel.setPreferredSize(new Dimension(300, SIZE));
         sidePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         mainPanel.add(sidePanel, BorderLayout.EAST);

@@ -1,4 +1,4 @@
-package project.world;
+package project.world.simulation;
 
 import project.world.mapGenerator.Map;
 
@@ -9,11 +9,16 @@ import static java.lang.Thread.sleep;
 public class Simulation implements Runnable {
     private final Random rand = new Random();
     private final Map map;
+    private final double speed;
 
     private volatile boolean running = false;
 
     public Simulation(Map map) {
+        this(map, new SimulationParameters());
+    }
+    public Simulation(Map map, SimulationParameters params) {
         this.map = map;
+        speed = params.getSpeed();
     }
 
 
@@ -28,7 +33,7 @@ public class Simulation implements Runnable {
                     }
                 }
                 map.handleMoving();
-                sleep(50);
+                sleep((long) (100/speed));
             }
         } catch (Exception e) {
             e.printStackTrace();

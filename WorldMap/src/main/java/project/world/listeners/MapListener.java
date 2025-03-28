@@ -2,10 +2,10 @@ package project.world.listeners;
 
 import project.world.visualizer.PanelVisualizer;
 
-public class mapListener {
+public class MapListener {
     private final PanelVisualizer visualizer;
 
-    public mapListener(PanelVisualizer visualizer) {
+    public MapListener(PanelVisualizer visualizer) {
         this.visualizer = visualizer;
     }
     public void mapChanged() {

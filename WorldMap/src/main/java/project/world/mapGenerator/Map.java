@@ -1,9 +1,10 @@
 package project.world.mapGenerator;
 
-import project.world.Simulation;
+import project.world.simulation.Simulation;
 import project.world.Vector2d;
 import project.world.creatures.BasicCreature;
-import project.world.listeners.mapListener;
+import project.world.listeners.MapListener;
+import project.world.simulation.SimulationParameters;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,7 +20,7 @@ public class Map {
     private final PerlinNoise perlin3;
     private final PerlinNoise perlin4;
 
-    private final Simulation simulation = new Simulation(this);
+    private final Simulation simulation;
 
     private final boolean altitudeLines;
     private final boolean gridLines;
@@ -27,24 +28,25 @@ public class Map {
     private BufferedImage mapImage;
 
     private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
-    private LinkedList<mapListener> listenerList = new LinkedList<>();
+    private LinkedList<MapListener> listenerList = new LinkedList<>();
 
 
     public Map(){
         this(true, true);
     }
     public Map(boolean altitudeLines, boolean gridLines) {
-        this(altitudeLines, gridLines, 5);
+        this(altitudeLines, gridLines, new SimulationParameters());
     }
-    public Map(boolean altitudeLines, boolean gridLines, int amountOfRandomCreatures) {
+    public Map(boolean altitudeLines, boolean gridLines, SimulationParameters simParams) {
         this.altitudeLines = altitudeLines;
         this.gridLines = gridLines;
+        this.simulation = new Simulation(this, simParams);
         perlin1 = new PerlinNoise(SIZE);
         perlin2 = new PerlinNoise(SIZE);
         perlin3 = new PerlinNoise(SIZE);
         perlin4 = new PerlinNoise(SIZE);
         generateMapImage();
-        generateRandomCreatures(amountOfRandomCreatures);
+        generateRandomCreatures(simParams.getAmountOfCreatures());
         Thread simulationThread = new Thread(simulation);
         simulationThread.start();
     }
@@ -132,11 +134,11 @@ public class Map {
         simulation.startSimulation();
     }
 
-    public void addListener(mapListener listener) {
+    public void addListener(MapListener listener) {
         listenerList.add(listener);
     }
     public void notifyListeners() {
-        for(mapListener listener: listenerList) {
+        for(MapListener listener: listenerList) {
             listener.mapChanged();
         }
     }
