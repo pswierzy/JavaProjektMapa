@@ -86,6 +86,7 @@ public class PanelVisualizer extends JPanel {
     }
 
     private void createNewMap() {
+        mapVisualizer.map().stopSimulation();
         Map map = new Map(paramsPanel.getAltitudeLines(), paramsPanel.getGridLines(), paramsPanel.getParameters());
         map.addListener(new MapListener(this));
         mapVisualizer = new MapVisualizer(map);

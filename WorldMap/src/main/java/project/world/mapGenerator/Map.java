@@ -1,5 +1,7 @@
 package project.world.mapGenerator;
 
+import project.world.creatures.Creature;
+import project.world.creatures.LandBasicCreature;
 import project.world.simulation.Simulation;
 import project.world.Vector2d;
 import project.world.creatures.BasicCreature;
@@ -27,7 +29,7 @@ public class Map {
 
     private BufferedImage mapImage;
 
-    private final LinkedList<BasicCreature> creatureList = new LinkedList<>();
+    private final LinkedList<Creature> creatureList = new LinkedList<>();
     private final LinkedList<MapListener> listenerList = new LinkedList<>();
 
 
@@ -54,7 +56,7 @@ public class Map {
     public BufferedImage getMapImage() {
         return mapImage;
     }
-    public LinkedList<BasicCreature> getCreatureList() {
+    public LinkedList<Creature> getCreatureList() {
         return creatureList;
     }
 
@@ -76,7 +78,7 @@ public class Map {
         value += perlin2.noise(x * 0.01f, y * 0.01f) * 0.7;
         value += perlin3.noise(x * 0.05f, y * 0.05f) * 0.05;
         value += perlin4.noise(x * 0.1f, y * 0.1f) * 0.005;
-        return value/1.755;
+        return value / 1.4;
     }
     public Biome getBiome(Vector2d v) {
         double pointValue = getPointValue(v.getX(), v.getY());
@@ -109,20 +111,20 @@ public class Map {
     public void generateRandomCreatures(int amountOfRandomCreatures) {
         for (int i = 0; i < amountOfRandomCreatures; i++) {
             Vector2d position = new Vector2d(rand.nextInt(SIZE), rand.nextInt(SIZE));
-            BasicCreature creature = new BasicCreature(10, 10, 10, 10, position, 10);
+            Creature creature = new BasicCreature(10, 10, 10, 10, position, 10, this);
+            spawnCreature(creature);
+            creature = new LandBasicCreature(10, 10, 10, 10, position, 10, this);
             spawnCreature(creature);
         }
     }
 
-    public void spawnCreature(BasicCreature creature) {
+    public void spawnCreature(Creature creature) {
         creatureList.add(creature);
     }
 
     public void handleMoving() {
-        for (BasicCreature creature : creatureList) {
-            int x = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
-            int y = rand.nextInt(creature.getSpeed() * 2) - creature.getSpeed();
-            creature.move(new Vector2d(x, y));
+        for (Creature creature : creatureList) {
+            creature.move();
         }
         notifyListeners();
     }

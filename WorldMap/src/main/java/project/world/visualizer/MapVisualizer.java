@@ -1,6 +1,6 @@
 package project.world.visualizer;
 
-import project.world.creatures.BasicCreature;
+import project.world.creatures.Creature;
 import project.world.mapGenerator.Map;
 
 import java.awt.*;
@@ -16,7 +16,7 @@ public record MapVisualizer(Map map) {
 
         gImage.drawImage(map.getMapImage(), 0, 0, null);
 
-        for (BasicCreature creature : map.getCreatureList()) {
+        for (Creature creature : map.getCreatureList()) {
             int x = creature.getPosition().getX();
             int y = creature.getPosition().getY();
             gImage.setColor(creature.getColor());
